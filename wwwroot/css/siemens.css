@@ -1,0 +1,433 @@
+/* ══════════════════════════════════════════
+   SIEMENS DESIGN — Inspired by Desigo CC Flex Client
+   Palette : Teal #009999 | Dark #000028 | White #FFFFFF
+═══════════════════════════════════════════ */
+
+:root {
+    --si-teal:        #009999;
+    --si-teal-dark:   #007070;
+    --si-teal-light:  #e0f5f5;
+    --si-dark:        #000028;
+    --si-dark-mid:    #1a1a3e;
+    --si-grey-100:    #f5f5f5;
+    --si-grey-200:    #e8e8e8;
+    --si-grey-400:    #aaaaaa;
+    --si-grey-600:    #666666;
+    --si-white:       #ffffff;
+    --si-error:       #cc0000;
+    --si-success:     #009999;
+    --si-font:        'Segoe UI', 'Arial', sans-serif;
+    --si-radius:      4px;
+    --si-shadow:      0 2px 8px rgba(0,0,40,0.10);
+    --si-transition:  0.2s ease;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family:      var(--si-font);
+    background-color: var(--si-grey-100);
+    color:            var(--si-dark);
+    min-height:       100vh;
+    display:          flex;
+    flex-direction:   column;
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.si-header {
+    background:      var(--si-dark);
+    color:           var(--si-white);
+    padding:         0 32px;
+    height:          56px;
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    box-shadow:      0 2px 6px rgba(0,0,40,0.4);
+    flex-shrink:     0;
+}
+
+.si-header__logo {
+    display:     flex;
+    align-items: center;
+    gap:         16px;
+}
+
+.si-logo-text {
+    font-size:      20px;
+    font-weight:    900;
+    color:          var(--si-teal);
+    letter-spacing: 2px;
+}
+
+.si-header__separator {
+    width:      1px;
+    height:     24px;
+    background: var(--si-grey-600);
+}
+
+.si-header__title {
+    font-size:      16px;
+    font-weight:    600;
+    color:          var(--si-white);
+    letter-spacing: 0.5px;
+}
+
+.si-header__sub {
+    font-size: 12px;
+    color:     var(--si-grey-400);
+}
+
+/* ══════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════ */
+.si-main {
+    flex:           1;
+    max-width:      960px;
+    width:          100%;
+    margin:         0 auto;
+    padding:        32px 24px;
+    display:        flex;
+    flex-direction: column;
+    gap:            20px;
+}
+
+/* ══════════════════════════════════════════
+   STATUS BAR
+═══════════════════════════════════════════ */
+.si-status-bar {
+    display:       flex;
+    gap:           24px;
+    background:    var(--si-white);
+    border:        1px solid var(--si-grey-200);
+    border-radius: var(--si-radius);
+    padding:       12px 20px;
+    box-shadow:    var(--si-shadow);
+}
+
+.si-status-item {
+    display:     flex;
+    align-items: center;
+    gap:         8px;
+    font-size:   13px;
+    font-weight: 500;
+    color:       var(--si-grey-600);
+}
+
+.si-status-dot {
+    width:         10px;
+    height:        10px;
+    border-radius: 50%;
+    background:    var(--si-grey-400);
+    transition:    background var(--si-transition);
+}
+
+.si-status-dot--ok     { background: var(--si-teal);      }
+.si-status-dot--active {
+    background: var(--si-teal);
+    animation:  pulse 1s infinite;
+}
+.si-status-dot--error  { background: var(--si-error);     }
+.si-status-dot--idle   { background: var(--si-grey-400);  }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1;   }
+    50%       { opacity: 0.3; }
+}
+
+/* ══════════════════════════════════════════
+   CARD
+═══════════════════════════════════════════ */
+.si-card {
+    background:    var(--si-white);
+    border:        1px solid var(--si-grey-200);
+    border-radius: var(--si-radius);
+    box-shadow:    var(--si-shadow);
+    overflow:      hidden;
+}
+
+.si-card__header {
+    background:      var(--si-dark);
+    color:           var(--si-white);
+    padding:         12px 20px;
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+}
+
+.si-card__title {
+    font-size:      14px;
+    font-weight:    600;
+    letter-spacing: 0.5px;
+    color:          var(--si-teal);
+}
+
+.si-card__body {
+    padding:        24px 20px;
+    display:        flex;
+    flex-direction: column;
+    gap:            20px;
+}
+
+/* ══════════════════════════════════════════
+   TOGGLE GROUP
+═══════════════════════════════════════════ */
+.si-toggle-group {
+    display:       flex;
+    border:        1px solid var(--si-grey-200);
+    border-radius: var(--si-radius);
+    overflow:      hidden;
+    width:         fit-content;
+}
+
+.si-toggle {
+    padding:      10px 28px;
+    border:       none;
+    background:   var(--si-grey-100);
+    color:        var(--si-grey-600);
+    font-size:    13px;
+    font-weight:  600;
+    cursor:       pointer;
+    transition:   background var(--si-transition), color var(--si-transition);
+    border-right: 1px solid var(--si-grey-200);
+}
+
+.si-toggle:last-child { border-right: none; }
+
+.si-toggle.active {
+    background: var(--si-teal);
+    color:      var(--si-white);
+}
+
+.si-toggle:hover:not(.active) {
+    background: var(--si-teal-light);
+    color:      var(--si-teal-dark);
+}
+
+/* ══════════════════════════════════════════
+   FORM
+═══════════════════════════════════════════ */
+.si-form-group {
+    display:        flex;
+    flex-direction: column;
+    gap:            6px;
+}
+
+.si-label {
+    font-size:      12px;
+    font-weight:    600;
+    color:          var(--si-grey-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.si-input {
+    height:        40px;
+    padding:       0 12px;
+    border:        1px solid var(--si-grey-200);
+    border-radius: var(--si-radius);
+    font-size:     14px;
+    color:         var(--si-dark);
+    background:    var(--si-white);
+    transition:    border-color var(--si-transition), box-shadow var(--si-transition);
+    outline:       none;
+    width:         220px;
+}
+
+.si-input:focus {
+    border-color: var(--si-teal);
+    box-shadow:   0 0 0 3px rgba(0,153,153,0.15);
+}
+
+.si-hint {
+    font-size: 11px;
+    color:     var(--si-grey-400);
+}
+
+.si-row {
+    display: flex;
+    gap:     24px;
+}
+
+.si-col {
+    display:        flex;
+    flex-direction: column;
+    gap:            6px;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.si-form-actions {
+    display:     flex;
+    align-items: center;
+    gap:         16px;
+    margin-top:  4px;
+}
+
+.si-btn {
+    display:        inline-flex;
+    align-items:    center;
+    gap:            8px;
+    padding:        0 24px;
+    height:         40px;
+    border:         none;
+    border-radius:  var(--si-radius);
+    font-size:      14px;
+    font-weight:    600;
+    cursor:         pointer;
+    transition:     background var(--si-transition), opacity var(--si-transition);
+    letter-spacing: 0.3px;
+}
+
+.si-btn--primary {
+    background: var(--si-teal);
+    color:      var(--si-white);
+}
+
+.si-btn--primary:hover:not(:disabled) {
+    background: var(--si-teal-dark);
+}
+
+.si-btn--primary:disabled {
+    opacity: 0.5;
+    cursor:  not-allowed;
+}
+
+.si-btn--ghost {
+    background: transparent;
+    color:      var(--si-grey-400);
+    border:     1px solid var(--si-grey-200);
+}
+
+.si-btn--ghost:hover {
+    background: var(--si-grey-100);
+    color:      var(--si-grey-600);
+}
+
+.si-btn--sm   { height: 28px; padding: 0 12px; font-size: 12px; }
+.si-btn__icon { font-size: 12px; }
+
+.si-running-badge {
+    font-size:     12px;
+    font-weight:   600;
+    color:         var(--si-teal);
+    padding:       4px 12px;
+    background:    var(--si-teal-light);
+    border-radius: 12px;
+    animation:     pulse 1s infinite;
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════ */
+.si-progress-bar-track {
+    height:        8px;
+    background:    var(--si-grey-200);
+    border-radius: 4px;
+    overflow:      hidden;
+}
+
+.si-progress-bar-fill {
+    height:        100%;
+    background:    var(--si-teal);
+    border-radius: 4px;
+    transition:    width 0.4s ease;
+}
+
+.si-progress-label {
+    font-size:   13px;
+    color:       var(--si-grey-400);
+    font-weight: 600;
+}
+
+.si-progress-location {
+    font-size:  12px;
+    color:      var(--si-grey-600);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════
+   RESULT
+═══════════════════════════════════════════ */
+.si-result {
+    display:       flex;
+    align-items:   flex-start;
+    gap:           16px;
+    padding:       16px;
+    border-radius: var(--si-radius);
+    border:        1px solid var(--si-grey-200);
+}
+
+.si-result--success {
+    background:   var(--si-teal-light);
+    border-color: var(--si-teal);
+}
+
+.si-result--error {
+    background:   #fff0f0;
+    border-color: var(--si-error);
+}
+
+.si-result__icon { font-size: 24px; }
+
+.si-result__body {
+    display:        flex;
+    flex-direction: column;
+    gap:            8px;
+}
+
+.si-result__list {
+    list-style:     none;
+    display:        flex;
+    flex-direction: column;
+    gap:            4px;
+    font-size:      13px;
+    color:          var(--si-grey-600);
+    margin-top:     4px;
+}
+
+/* ══════════════════════════════════════════
+   LOG CONSOLE
+═══════════════════════════════════════════ */
+.si-log-console {
+    background:     var(--si-dark);
+    color:          #00ffcc;
+    font-family:    'Consolas', 'Courier New', monospace;
+    font-size:      12px;
+    padding:        16px;
+    border-radius:  var(--si-radius);
+    height:         240px;
+    overflow-y:     auto;
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+}
+
+.si-log-line {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break:  break-all;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+.si-footer {
+    background:      var(--si-dark);
+    color:           var(--si-grey-400);
+    font-size:       11px;
+    padding:         10px 32px;
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    flex-shrink:     0;
+}
+
+/* ══════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════ */
+.si-hidden { display: none !important; }

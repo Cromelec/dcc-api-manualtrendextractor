@@ -1,0 +1,276 @@
+﻿@page
+@model WebAPIDateTrendSelector.Pages.IndexModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/Trend/" />
+    <title>Manual Trend Extractor — Siemens</title>
+    <link rel="stylesheet" href="css/siemens.css" />
+    <style>
+        /* ── Header right block ── */
+        .si-header__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* ── Bouton refresh désactivé pendant le chargement ── */
+        #btnRefreshToken.loading {
+            opacity: 0.55;
+            pointer-events: none;
+            cursor: wait;
+        }
+
+        /* ── Trend List Items ── */
+        .si-trend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.875rem;
+        }
+
+        .si-trend-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .si-trend-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #009999;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .si-trend-label {
+            word-break: break-all;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════ -->
+<header class="si-header">
+    <div class="si-header__logo">
+        <span class="si-logo-text">SIEMENS</span>
+        <span class="si-header__separator"></span>
+        <span class="si-header__title">Manual Trend Extractor</span>
+    </div>
+    <div class="si-header__right">
+        <span class="si-header__sub" id="headerProjectName">
+            Chargement…
+        </span>
+        <button class="si-btn si-btn--ghost si-btn--sm"
+                id="btnRefreshToken"
+                onclick="refreshToken()"
+                title="Renouveler le token de session Desigo CC">
+            🔄 Refresh Token
+        </button>
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════ -->
+<main class="si-main">
+
+    <!-- ── Status Bar ── -->
+    <div class="si-status-bar">
+        <div class="si-status-item">
+            <span class="si-status-dot" id="dotSession"></span>
+            <span>Session API</span>
+        </div>
+        <div class="si-status-item">
+            <span class="si-status-dot" id="dotProject"></span>
+            <span id="lblProjectName">Projet —</span>
+        </div>
+        <div class="si-status-item">
+            <span class="si-status-dot" id="dotToken"></span>
+            <span id="lblTokenStatus">Token —</span>
+        </div>
+        <div class="si-status-item">
+            <span class="si-status-dot" id="dotAcq"></span>
+            <span>Acquisition</span>
+        </div>
+    </div>
+
+    <!-- ── Card Paramètres ── -->
+    <div class="si-card">
+        <div class="si-card__header">
+            <h2 class="si-card__title">Paramètres d'acquisition</h2>
+        </div>
+        <div class="si-card__body">
+
+            <!-- Mode selector -->
+            <div class="si-toggle-group" role="group" aria-label="Mode de sélection">
+                <button class="si-toggle active" id="btnModeSingle"
+                        onclick="setMode('single')">
+                    Date unique
+                </button>
+                <button class="si-toggle" id="btnModeRange"
+                        onclick="setMode('range')">
+                    Période
+                </button>
+            </div>
+
+            <!-- Date unique -->
+            <div class="si-form-group" id="groupSingle">
+                <label class="si-label" for="dateSingle">Date</label>
+                <input class="si-input" type="date" id="dateSingle"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span class="si-hint">
+                    Les données de 00:00 à 23:59 seront extraites.
+                </span>
+            </div>
+
+            <!-- Période -->
+            <div class="si-form-group si-hidden" id="groupRange">
+                <div class="si-row">
+                    <div class="si-col">
+                        <label class="si-label" for="dateFrom">Du</label>
+                        <input class="si-input" type="date" id="dateFrom"
+                               value="@DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="si-col">
+                        <label class="si-label" for="dateTo">Au</label>
+                        <input class="si-input" type="date" id="dateTo"
+                               value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="si-form-actions">
+                <button class="si-btn si-btn--primary" id="btnStart"
+                        onclick="startAcquisition()">
+                    <span class="si-btn__icon">▶</span>
+                    Lancer l'acquisition
+                </button>
+
+                <button class="si-btn si-btn--danger si-hidden" id="btnCancel"
+                        onclick="cancelAcquisition()"
+                        title="Arrêter l'acquisition en cours">
+                    ⛔ Arrêter
+                </button>
+
+                <span class="si-running-badge si-hidden" id="badgeRunning">
+                    En cours…
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── 🆕 Card Sélection des Trends ── -->
+    <div class="si-card" id="cardTrendList">
+        <div class="si-card__header">
+            <h2 class="si-card__title">Sélection des Trends</h2>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <button class="si-btn si-btn--ghost si-btn--sm"
+                        id="btnSelectAll"
+                        onclick="selectAllTrends(true)">
+                    ✅ Tout sélectionner
+                </button>
+                <button class="si-btn si-btn--ghost si-btn--sm"
+                        id="btnSelectNone"
+                        onclick="selectAllTrends(false)">
+                    ☐ Tout désélectionner
+                </button>
+                <button class="si-btn si-btn--ghost si-btn--sm"
+                        id="btnLoadTrends"
+                        onclick="loadTrendList()">
+                    🔄 Charger la liste
+                </button>
+            </div>
+        </div>
+        <div class="si-card__body">
+
+            <!-- Barre de recherche -->
+            <div class="si-form-group" style="margin-bottom:8px;">
+                <input class="si-input" type="text" id="trendSearch"
+                       placeholder="🔍 Filtrer les trends..."
+                       oninput="filterTrends(this.value)" />
+            </div>
+
+            <!-- Compteur de sélection -->
+            <div style="margin-bottom:8px; font-size:0.85rem; color:#666;">
+                <span id="lblTrendCount">Aucun trend chargé.</span>
+            </div>
+
+            <!-- Liste des trends avec checkboxes -->
+            <div id="trendListContainer"
+                 style="max-height:300px; overflow-y:auto; border:1px solid #e0e0e0;
+                        border-radius:4px; padding:4px;">
+                <div id="trendListPlaceholder"
+                     style="padding:16px; text-align:center; color:#999;">
+                    Cliquez sur <strong>🔄 Charger la liste</strong>
+                    pour afficher les trends disponibles.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── Progression ── -->
+    <div class="si-card si-hidden" id="cardProgress">
+        <div class="si-card__header">
+            <h2 class="si-card__title">Progression</h2>
+            <span class="si-progress-label" id="progressLabel">0 / 0</span>
+        </div>
+        <div class="si-card__body">
+            <div class="si-progress-bar-track">
+                <div class="si-progress-bar-fill" id="progressFill"
+                     style="width: 0%"></div>
+            </div>
+            <p class="si-progress-location" id="progressLocation">—</p>
+        </div>
+    </div>
+
+    <!-- ── Résultat ── -->
+    <div class="si-card si-hidden" id="cardResult">
+        <div class="si-card__header">
+            <h2 class="si-card__title">Résultat</h2>
+        </div>
+        <div class="si-card__body">
+            <div class="si-result" id="resultBox"></div>
+        </div>
+    </div>
+
+    <!-- ── Logs temps réel ── -->
+    <div class="si-card" id="cardLogs">
+        <div class="si-card__header">
+            <h2 class="si-card__title">Logs</h2>
+            <button class="si-btn si-btn--ghost si-btn--sm"
+                    onclick="clearLogs()">Effacer</button>
+        </div>
+        <div class="si-card__body">
+            <div class="si-log-console" id="logConsole"></div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer class="si-footer">
+    <span>Siemens — Manual Trend Extractor v.1</span>
+    <span id="footerSystemId"></span>
+</footer>
+
+<script src="js/signalr.min.js"></script>
+<script src="js/tokenMonitor.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

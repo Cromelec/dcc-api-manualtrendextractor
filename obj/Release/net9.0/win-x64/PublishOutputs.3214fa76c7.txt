@@ -1,0 +1,12 @@
+D:\VisualStudioProjects\VSCode\API\publish\WebAPIDateTrendSelector.exe
+D:\VisualStudioProjects\VSCode\API\publish\App.config
+D:\VisualStudioProjects\VSCode\API\publish\appsettings.Development.json
+D:\VisualStudioProjects\VSCode\API\publish\appsettings.json
+D:\VisualStudioProjects\VSCode\API\publish\example Output\global.json
+D:\VisualStudioProjects\VSCode\API\publish\WebAPIDateTrendSelector.dll
+D:\VisualStudioProjects\VSCode\API\publish\WebAPIDateTrendSelector.deps.json
+D:\VisualStudioProjects\VSCode\API\publish\WebAPIDateTrendSelector.runtimeconfig.json
+D:\VisualStudioProjects\VSCode\API\publish\WebAPIDateTrendSelector.dll.config
+D:\VisualStudioProjects\VSCode\API\publish\WebAPIDateTrendSelector.pdb
+D:\VisualStudioProjects\VSCode\API\publish\Newtonsoft.Json.dll
+D:\VisualStudioProjects\VSCode\API\publish\System.Net.WebSockets.WebSocketProtocol.dll

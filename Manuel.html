@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation Technique - Manual Trend Extractor v.1</title>
+    <style>
+        /* Couleurs Siemens */
+        :root {
+            --siemens-cyan: #009999;
+            --siemens-dark: #003333;
+            --siemens-black: #000000;
+            --siemens-gray: #F0F0F0;
+            --siemens-light-gray: #FAFAFA;
+            --siemens-success: #28a745;
+            --siemens-warning: #ffc107;
+            --siemens-danger: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* En-tête */
+        .header {
+            background: linear-gradient(135deg, var(--siemens-dark) 0%, var(--siemens-cyan) 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .header .meta {
+            margin-top: 25px;
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .badge-version {
+            background-color: white;
+            color: var(--siemens-cyan);
+        }
+
+        .badge-status {
+            background-color: var(--siemens-warning);
+            color: #333;
+        }
+
+        /* Table des matières */
+        .toc {
+            background-color: var(--siemens-light-gray);
+            border-left: 5px solid var(--siemens-cyan);
+            padding: 30px;
+            margin-bottom: 50px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toc h2 {
+            color: var(--siemens-dark);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc ul li {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .toc ul li a {
+            color: var(--siemens-cyan);
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            display: block;
+            padding: 5px 0;
+        }
+
+        .toc ul li a:hover {
+            color: var(--siemens-dark);
+            padding-left: 15px;
+            font-weight: bold;
+        }
+
+        .toc ul ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .toc ul ul li a {
+            font-size: 1em;
+            color: #555;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 60px;
+            page-break-inside: avoid;
+        }
+
+        h1 {
+            color: var(--siemens-dark);
+            border-bottom: 4px solid var(--siemens-cyan);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            margin-top: 40px;
+        }
+
+        h2 {
+            color: var(--siemens-cyan);
+            margin-top: 35px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            padding-left: 10px;
+            border-left: 4px solid var(--siemens-cyan);
+        }
+
+        h3 {
+            color: var(--siemens-dark);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* Tableaux */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: var(--siemens-cyan);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background-color: var(--siemens-gray);
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Code */
+        code {
+            background-color: var(--siemens-gray);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.9em;
+            color: var(--siemens-dark);
+        }
+
+        pre {
+            background-color: var(--siemens-dark);
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 5px solid var(--siemens-cyan);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        /* Boîtes d'information */
+        .info-box {
+            background-color: #e7f7f7;
+            border-left: 5px solid var(--siemens-cyan);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .info-box strong {
+            color: var(--siemens-cyan);
+            font-size: 1.1em;
+        }
+
+        .warning-box {
+            background-color: #fff8e1;
+            border-left: 5px solid var(--siemens-warning);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box strong {
+            color: #f57c00;
+            font-size: 1.1em;
+        }
+
+        .error-box {
+            background-color: #ffebee;
+            border-left: 5px solid var(--siemens-danger);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .error-box strong {
+            color: var(--siemens-danger);
+            font-size: 1.1em;
+        }
+
+        .success-box {
+            background-color: #e8f5e9;
+            border-left: 5px solid var(--siemens-success);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .success-box strong {
+            color: var(--siemens-success);
+            font-size: 1.1em;
+        }
+
+        /* Listes */
+        ul, ol {
+            margin-left: 40px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        ul li::marker {
+            color: var(--siemens-cyan);
+        }
+
+        ol li::marker {
+            color: var(--siemens-cyan);
+            font-weight: bold;
+        }
+
+        /* Pied de page */
+        .footer {
+            background-color: var(--siemens-dark);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+        }
+
+        .footer p {
+            margin: 10px 0;
+        }
+
+        .footer .copyright {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+
+        /* Diagrammes */
+        .diagram {
+            background-color: var(--siemens-light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid var(--siemens-cyan);
+        }
+
+        /* Séparateurs */
+        .separator {
+            height: 2px;
+            background: linear-gradient(to right, var(--siemens-cyan), transparent);
+            margin: 40px 0;
+        }
+
+        /* Signature de méthode */
+        .method-signature {
+            background-color: var(--siemens-light-gray);
+            padding: 15px;
+            border-left: 4px solid var(--siemens-cyan);
+            margin: 20px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Status dots */
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .dot-green  { background-color: #00b894; }
+        .dot-orange { background-color: #f39c12; }
+        .dot-gray   { background-color: #aaa; }
+        .dot-red    { background-color: #e74c3c; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .header .subtitle { font-size: 1.1em; }
+            table { font-size: 0.85em; }
+            pre { font-size: 0.8em; padding: 15px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+        }
+
+        /* Print styles */
+        @media print {
+            .header {
+                background: white;
+                color: var(--siemens-dark);
+                border-bottom: 3px solid var(--siemens-cyan);
+            }
+            .toc { page-break-after: always; }
+            section { page-break-inside: avoid; }
+            pre { page-break-inside: avoid; }
+            .badge { border: 1px solid var(--siemens-cyan); }
+        }
+
+        /* Navigation flottante */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--siemens-cyan);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.5em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--siemens-dark);
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bouton retour en haut -->
+    <a href="#top" class="back-to-top" title="Retour en haut">↑</a>
+
+    <!-- En-tête -->
+    <div class="header" id="top">
+        <h1>📊 Documentation Technique</h1>
+        <div class="subtitle">Manual Trend Extractor — Application d'extraction manuelle de données de tendances</div>
+        <div class="meta">
+            <span class="badge badge-version">Version 1.0</span>
+            <span class="badge badge-status">🔧 En développement</span>
+            <br><br>
+            <strong>Siemens Luxembourg</strong> | 2025
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Table des matières -->
+        <div class="toc">
+            <h2>📑 Table des Matières</h2>
+            <ul>
+                <li><a href="#section1">1. Vue d'ensemble</a>
+                    <ul>
+                        <li><a href="#section1-1">1.1 Objectif</a></li>
+                        <li><a href="#section1-2">1.2 Différences avec le Trends Extractor automatique</a></li>
+                        <li><a href="#section1-3">1.3 Technologies Utilisées</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section2">2. Architecture Technique</a>
+                    <ul>
+                        <li><a href="#section2-1">2.1 Composants Principaux</a></li>
+                        <li><a href="#section2-2">2.2 Flux de Communication</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section3">3. Interface Utilisateur</a>
+                    <ul>
+                        <li><a href="#section3-1">3.1 Header</a></li>
+                        <li><a href="#section3-2">3.2 Barre de Statut</a></li>
+                        <li><a href="#section3-3">3.3 Paramètres d'Acquisition</a></li>
+                        <li><a href="#section3-4">3.4 Progression et Résultat</a></li>
+                        <li><a href="#section3-5">3.5 Console de Logs</a></li>
+                        <li><a href="#section3-6">3.6 Footer</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section4">4. Modes d'Acquisition</a>
+                    <ul>
+                        <li><a href="#section4-1">4.1 Mode Date Unique</a></li>
+                        <li><a href="#section4-2">4.2 Mode Période</a></li>
+                        <li><a href="#section4-3">4.3 Annulation d'une Acquisition</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section5">5. Gestion de Session et Token</a>
+                    <ul>
+                        <li><a href="#section5-1">5.1 Authentification OAuth 2.0</a></li>
+                        <li><a href="#section5-2">5.2 TokenMonitor</a></li>
+                        <li><a href="#section5-3">5.3 Refresh Token Manuel</a></li>
+                        <li><a href="#section5-4">5.4 Connexion SignalR</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section6">6. Flux de Traitement</a>
+                    <ul>
+                        <li><a href="#section6-1">6.1 Démarrage de l'Application</a></li>
+                        <li><a href="#section6-2">6.2 Lancement d'une Acquisition</a></li>
+                        <li><a href="#section6-3">6.3 Machine à États</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section7">7. Gestion des Erreurs</a>
+                    <ul>
+                        <li><a href="#section7-1">7.1 Stratégies de Gestion</a></li>
+                        <li><a href="#section7-2">7.2 Codes d'Erreur API</a></li>
+                        <li><a href="#section7-3">7.3 Interprétation des Logs</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section8">8. Annexes</a>
+                    <ul>
+                        <li><a href="#section8-1">8.1 Historique des Versions</a></li>
+                        <li><a href="#section8-2">8.2 Endpoints API Utilisés</a></li>
+                        <li><a href="#section8-3">8.3 Prérequis et Déploiement</a></li>
+                        <li><a href="#section8-4">8.4 FAQ</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 1 : VUE D'ENSEMBLE
+        ════════════════════════════════════════════ -->
+        <section id="section1">
+            <h1>1. Vue d'ensemble</h1>
+
+            <div id="section1-1">
+                <h2>1.1 Objectif</h2>
+                <p>
+                    Le <strong>Manual Trend Extractor</strong> est une application web interne Siemens développée en ASP.NET Core (Razor Pages) 
+                    permettant à un opérateur de déclencher <strong>manuellement</strong> l'extraction de données de tendances (trends) 
+                    depuis un serveur <strong>Desigo CC</strong> via l'API NORIS RESTful v8.0.
+                </p>
+                <p>
+                    Contrairement au <em>Trends Extractor</em> automatique (v4.0), cet outil laisse le contrôle total à l'utilisateur : 
+                    il choisit la plage temporelle souhaitée, lance l'acquisition à la demande et suit la progression en temps réel 
+                    depuis son navigateur web. L'outil est conçu pour des besoins ponctuels, des re-extractions ou des vérifications 
+                    manuelles de données historiques.
+                </p>
+
+                <div class="warning-box">
+                    <strong>⚠️ Statut :</strong> Cette application est actuellement en version <strong>v.1</strong> et n'a pas encore 
+                    été déployée en environnement de production. Elle est en cours de développement et de validation.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section1-2">
+                <h2>1.2 Différences avec le Trends Extractor automatique</h2>
+                <p>Le tableau suivant résume les différences clés entre les deux outils complémentaires :</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Critère</th>
+                            <th>Trends Extractor v4.0 (Auto)</th>
+                            <th>Manual Trend Extractor v.1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Déclenchement</strong></td>
+                            <td>Automatique (timer configurable)</td>
+                            <td>Manuel (bouton utilisateur)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interface</strong></td>
+                            <td>Windows Forms (application bureau)</td>
+                            <td>Web (navigateur, ASP.NET Core)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Plage temporelle</strong></td>
+                            <td>Fixe (7 derniers jours)</td>
+                            <td>Configurable (date unique ou période libre)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Suivi en temps réel</strong></td>
+                            <td>Labels UI Windows Forms</td>
+                            <td>Console de logs SignalR + barre de progression</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gestion du token</strong></td>
+                            <td>Reconnexion automatique (loginTimer)</td>
+                            <td>TokenMonitor + bouton Refresh manuel</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Déploiement</strong></td>
+                            <td>Production (v4.0 stable)</td>
+                            <td>En développement (v.1)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cas d'usage</strong></td>
+                            <td>Archivage continu et automatisé</td>
+                            <td>Re-extraction ponctuelle, vérification, audit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section1-3">
+                <h2>1.3 Technologies Utilisées</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Technologie</th>
+                            <th>Version / Framework</th>
+                            <th>Utilisation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Langage Backend</strong></td>
+                            <td>C#</td>
+                            <td>Logique métier, appels API Desigo CC</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Framework Web</strong></td>
+                            <td>ASP.NET Core — Razor Pages</td>
+                            <td>Rendu de la page, routing, backend</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Frontend</strong></td>
+                            <td>HTML5 / CSS3 / JavaScript</td>
+                            <td>Interface utilisateur (Index.cshtml)</td>
+                        </tr>
+                        <tr>
+                            <td><code>SignalR</code></td>
+                            <td>signalr.min.js (local)</td>
+                            <td>Push des logs et progression en temps réel</td>
+                        </tr>
+                        <tr>
+                            <td><code>TokenMonitor.js</code></td>
+                            <td>Script custom</td>
+                            <td>Surveillance de l'expiration du token OAuth</td>
+                        </tr>
+                        <tr>
+                            <td><code>app.js</code></td>
+                            <td>Script custom</td>
+                            <td>Logique d'acquisition côté client</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Authentification</strong></td>
+                            <td>OAuth 2.0 — Bearer Token</td>
+                            <td>Sécurisation des appels à l'API NORIS</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API cible</strong></td>
+                            <td>NORIS RESTful v8.0</td>
+                            <td>Source des données de tendances Desigo CC</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CSS</strong></td>
+                            <td>siemens.css (custom)</td>
+                            <td>Charte graphique Siemens</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 2 : ARCHITECTURE TECHNIQUE
+        ════════════════════════════════════════════ -->
+        <section id="section2">
+            <h1>2. Architecture Technique</h1>
+
+            <div id="section2-1">
+                <h2>2.1 Composants Principaux</h2>
+                <p>L'architecture de l'application est organisée en trois couches :</p>
+
+                <div class="diagram">
+                    <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                   COUCHE PRÉSENTATION                       │
+│              Index.cshtml (Razor Page)                      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │   Header     │  │  Status Bar  │  │    Footer    │     │
+│  │  (Titre +    │  │ (Session,    │  │  (Version)   │     │
+│  │   Token btn) │  │  Projet,     │  │              │     │
+│  │              │  │  Token, Acq) │  │              │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Card Acquisition  │  Card Progression  │ Card Logs  │  │
+│  └──────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                   COUCHE LOGIQUE CLIENT                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │   app.js     │  │tokenMonitor  │  │  signalr     │     │
+│  │              │  │    .js       │  │  .min.js     │     │
+│  │ Acquisition  │  │ Surveillance │  │ Connexion    │     │
+│  │ Modes/Dates  │  │ Token OAuth  │  │ Temps réel   │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+├─────────────────────────────────────────────────────────────┤
+│                   COUCHE BACKEND                            │
+│              ASP.NET Core (C#)                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ • Appels API NORIS RESTful (OAuth 2.0 Bearer)        │  │
+│  │ • Hub SignalR (push logs → client)                   │  │
+│  │ • Gestion de session Desigo CC                       │  │
+│  │ • Configuration (appsettings.json)                   │  │
+│  └──────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                   API DESIGO CC                             │
+│              NORIS RESTful v8.0                             │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ • POST /api/token (authentification)                 │  │
+│  │ • POST /api/heartbeat (maintien session)             │  │
+│  │ • GET  /api/systems/local (infos projet)             │  │
+│  │ • GET  /api/trendseriesinfo/{systemId}               │  │
+│  │ • GET  /api/trendseries/{id}?from=...&to=...         │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+                </div>
+
+                <div class="info-box">
+                    <strong>ℹ️ Base href :</strong> L'application est déployée sous le chemin <code>/Trend/</code> 
+                    (défini par la balise <code>&lt;base href="/Trend/"&gt;</code> dans le HTML). 
+                    Toutes les ressources statiques (CSS, JS) sont résolues relativement à ce chemin.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section2-2">
+                <h2>2.2 Flux de Communication</h2>
+                <p>Le diagramme suivant illustre les échanges entre les différents composants :</p>
+
+                <div class="diagram">
+                    <pre><code>┌──────────┐        ┌────────────┐        ┌──────────────┐
+│Navigateur│        │ ASP.NET    │        │  Desigo CC   │
+│(Client)  │        │ Core       │        │  NORIS API   │
+└────┬─────┘        └─────┬──────┘        └──────┬───────┘
+     │                    │                       │
+     │ GET /Trend/        │                       │
+     ├───────────────────>│                       │
+     │<───────────────────┤                       │
+     │  Index.cshtml      │                       │
+     │                    │                       │
+     │ SignalR Connect    │                       │
+     ├───────────────────>│                       │
+     │<───────────────────┤                       │
+     │  Hub établi        │                       │
+     │                    │                       │
+     │ startAcquisition() │                       │
+     ├───────────────────>│                       │
+     │                    │ POST /api/token        │
+     │                    ├──────────────────────>│
+     │                    │<──────────────────────┤
+     │                    │  Bearer Token          │
+     │                    │                       │
+     │                    │ GET /api/systems/local │
+     │                    ├──────────────────────>│
+     │                    │<──────────────────────┤
+     │                    │  Projet + SystemId     │
+     │                    │                       │
+     │                    │ GET /api/trendseriesinfo/{id}
+     │                    ├──────────────────────>│
+     │                    │<──────────────────────┤
+     │                    │  Liste des trends      │
+     │                    │                       │
+     │                    │ [Pour chaque trend]    │
+     │                    │ GET /api/trendseries/  │
+     │                    ├──────────────────────>│
+     │                    │<──────────────────────┤
+     │                    │  TrendSeries JSON      │
+     │                    │                       │
+     │ SignalR Push (log) │                       │
+     │<───────────────────┤                       │
+     │ Mise à jour UI     │                       │
+     │                    │                       │</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 3 : INTERFACE UTILISATEUR
+        ════════════════════════════════════════════ -->
+        <section id="section3">
+            <h1>3. Interface Utilisateur</h1>
+
+            <div id="section3-1">
+                <h2>3.1 Header</h2>
+                <p>
+                    Le header est affiché en permanence en haut de la page. Il contient le logo Siemens, 
+                    le titre de l'application et les contrôles de session.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Élément</th>
+                            <th>Contenu</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Logo</strong></td>
+                            <td>SIEMENS</td>
+                            <td>Identifiant Siemens (texte stylisé)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Titre</strong></td>
+                            <td>Manual Trend Extractor</td>
+                            <td>Nom de l'application</td>
+                        </tr>
+                        <tr>
+                            <td><code>headerProjectName</code></td>
+                            <td>Nom du projet connecté</td>
+                            <td>Affiché dynamiquement après connexion (ex: CentraleFroidBelval2)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bouton Refresh Token</strong></td>
+                            <td>🔄 Refresh Token</td>
+                            <td>Renouvelle manuellement le token de session Desigo CC</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>ℹ️ Bouton désactivé :</strong> Le bouton <strong>Refresh Token</strong> est désactivé 
+                    (classe CSS <code>loading</code>) pendant le chargement pour éviter les doubles appels. 
+                    Il reprend son état normal une fois le rafraîchissement terminé.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section3-2">
+                <h2>3.2 Barre de Statut</h2>
+                <p>
+                    La barre de statut affiche en temps réel l'état des quatre composants critiques de l'application. 
+                    Chaque indicateur est représenté par un point coloré (<em>dot</em>) et un libellé.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Indicateur</th>
+                            <th>ID HTML</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="status-indicator dot-green"></span>
+                                <strong>Session API</strong>
+                            </td>
+                            <td><code>dotSession</code></td>
+                            <td>Connexion active à l'API Desigo CC</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="status-indicator dot-green"></span>
+                                <strong>Projet</strong>
+                            </td>
+                            <td><code>dotProject</code> / <code>lblProjectName</code></td>
+                            <td>Nom du projet Desigo CC connecté</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="status-indicator dot-orange"></span>
+                                <strong>Token</strong>
+                            </td>
+                            <td><code>dotToken</code> / <code>lblTokenStatus</code></td>
+                            <td>État du token OAuth (actif / expiré / proche expiration)</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="status-indicator dot-gray"></span>
+                                <strong>Acquisition</strong>
+                            </td>
+                            <td><code>dotAcq</code></td>
+                            <td>En attente / En cours d'extraction</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Signification des couleurs</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Couleur</th>
+                            <th>Signification</th>
+                            <th>Action recommandée</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="status-indicator dot-green"></span> Vert</td>
+                            <td>Composant opérationnel</td>
+                            <td>Aucune action requise</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-indicator dot-orange"></span> Orange</td>
+                            <td>Avertissement (ex: token proche de l'expiration)</td>
+                            <td>Cliquer sur <strong>🔄 Refresh Token</strong></td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-indicator dot-gray"></span> Gris</td>
+                            <td>En attente ou non démarré</td>
+                            <td>Attendre l'initialisation</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-indicator dot-red"></span> Rouge</td>
+                            <td>Erreur de connexion ou composant défaillant</td>
+                            <td>Vérifier la connectivité réseau et la configuration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <strong>⚠️ Prérequis avant acquisition :</strong> Les indicateurs 
+                    <strong>Session API</strong>, <strong>Projet</strong> et <strong>Token</strong> 
+                    doivent tous être <span style="color:#28a745;font-weight:bold;">verts</span> 
+                    avant de lancer une acquisition. Un indicateur rouge ou gris indique que 
+                    l'acquisition risque d'échouer.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section3-3">
+                <h2>3.3 Paramètres d'Acquisition</h2>
+                <p>
+                    La carte principale de l'interface permet de configurer et de lancer l'extraction. 
+                    Elle contient le sélecteur de mode, les champs de date et les boutons d'action.
+                </p>
+
+                <h3>Sélecteur de mode</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bouton</th>
+                            <th>ID</th>
+                            <th>Mode activé</th>
+                            <th>Comportement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Date unique</strong></td>
+                            <td><code>btnModeSingle</code></td>
+                            <td><code>single</code></td>
+                            <td>Affiche le champ date unique, masque la période</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Période</strong></td>
+                            <td><code>btnModeRange</code></td>
+                            <td><code>range</code></td>
+                            <td>Affiche les champs Du/Au, masque la date unique</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Champs de saisie</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Champ</th>
+                            <th>ID</th>
+                            <th>Valeur par défaut</th>
+                            <th>Mode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Date</strong></td>
+                            <td><code>dateSingle</code></td>
+                            <td>Date du jour (<code>DateTime.Today</code>)</td>
+                            <td>Date unique</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Du</strong></td>
+                            <td><code>dateFrom</code></td>
+                            <td>Date du jour - 7 jours</td>
+                            <td>Période</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Au</strong></td>
+                            <td><code>dateTo</code></td>
+                            <td>Date du jour (<code>DateTime.Today</code>)</td>
+                            <td>Période</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Boutons d'action</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bouton</th>
+                            <th>ID</th>
+                            <th>Fonction JS</th>
+                            <th>Visibilité</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>▶ <strong>Lancer l'acquisition</strong></td>
+                            <td><code>btnStart</code></td>
+                            <td><code>startAcquisition()</code></td>
+                            <td>Toujours visible</td>
+                        </tr>
+                        <tr>
+                            <td>⛔ <strong>Arrêter</strong></td>
+                            <td><code>btnCancel</code></td>
+                            <td><code>cancelAcquisition()</code></td>
+                            <td>Visible uniquement pendant une acquisition</td>
+                        </tr>
+                        <tr>
+                            <td><strong>En cours…</strong></td>
+                            <td><code>badgeRunning</code></td>
+                            <td>—</td>
+                            <td>Badge affiché pendant l'acquisition</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section3-4">
+                <h2>3.4 Progression et Résultat</h2>
+
+                <h3>Carte Progression</h3>
+                <p>
+                    La carte de progression (<code>cardProgress</code>) est masquée par défaut et s'affiche 
+                    automatiquement lors du démarrage d'une acquisition.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Élément</th>
+                            <th>ID</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Compteur</strong></td>
+                            <td><code>progressLabel</code></td>
+                            <td>Affiche "X / Y" (trends traités / total)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Barre de progression</strong></td>
+                            <td><code>progressFill</code></td>
+                            <td>Barre visuelle de 0% à 100%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Localisation</strong></td>
+                            <td><code>progressLocation</code></td>
+                            <td>Nom du trend en cours de traitement</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Carte Résultat</h3>
+                <p>
+                    La carte résultat (<code>cardResult</code>) est masquée par défaut et s'affiche 
+                    à la fin d'une acquisition réussie. Elle contient un récapitulatif dans <code>resultBox</code>.
+                </p>
+
+                <div class="success-box">
+                    <strong>✅ Comportement :</strong> Les cartes Progression et Résultat utilisent la classe CSS 
+                    <code>si-hidden</code> pour être masquées. Elles sont affichées/masquées dynamiquement 
+                    par <code>app.js</code> selon l'état de l'acquisition.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section3-5">
+                <h2>3.5 Console de Logs</h2>
+                <p>
+                    La console de logs (<code>logConsole</code>) affiche en temps réel tous les événements 
+                    de l'application via la connexion <strong>SignalR</strong>. Chaque entrée est horodatée.
+                </p>
+
+                <h3>Exemples de messages de log</h3>
+                <pre><code>[5:19:38 PM] ✅ Connecté — Projet : CentraleFroidBelval2 (ID : 2)
+[5:19:38 PM] 🕐 [TokenMonitor] Surveillance démarrée (expire dans 2591999s)
+[5:19:38 PM] 🔗 Connexion SignalR établie.
+[5:20:01 PM] ▶ Acquisition démarrée — Mode : Date unique — 2026-05-04
+[5:20:02 PM] 📊 Trend 1/156 : Building@HVAC@Floor1_AHU1@Temperature
+[5:21:45 PM] ✅ Acquisition terminée — 156 trends traités</code></pre>
+
+                <h3>Types de messages</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Icône</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>✅</td>
+                            <td>Succès</td>
+                            <td>Opération réussie (connexion, acquisition terminée)</td>
+                        </tr>
+                        <tr>
+                            <td>🕐</td>
+                            <td>Info système</td>
+                            <td>Informations sur le token, le TokenMonitor</td>
+                        </tr>
+                        <tr>
+                            <td>🔗</td>
+                            <td>Connexion</td>
+                            <td>Événements de connexion SignalR</td>
+                        </tr>
+                        <tr>
+                            <td>▶</td>
+                            <td>Démarrage</td>
+                            <td>Lancement d'une acquisition</td>
+                        </tr>
+                        <tr>
+                            <td>📊</td>
+                            <td>Progression</td>
+                            <td>Traitement d'un trend individuel</td>
+                        </tr>
+                        <tr>
+                            <td>⚠️</td>
+                            <td>Avertissement</td>
+                            <td>Situation anormale non bloquante</td>
+                        </tr>
+                        <tr>
+                            <td>❌</td>
+                            <td>Erreur</td>
+                            <td>Erreur bloquante — vérifier la configuration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>ℹ️ Bouton Effacer :</strong> Le bouton <strong>Effacer</strong> vide la console 
+                    via la fonction <code>clearLogs()</code> sans interrompre l'acquisition en cours. 
+                    Les nouveaux messages continueront d'apparaître normalement.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section3-6">
+                <h2>3.6 Footer</h2>
+                <p>Le footer est affiché en bas de page et contient deux informations :</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Élément</th>
+                            <th>Contenu</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Texte gauche</strong></td>
+                            <td>Siemens — Manual Trend Extractor v.1</td>
+                            <td>Nom et version de l'application</td>
+                        </tr>
+                        <tr>
+                            <td><code>footerSystemId</code></td>
+                            <td>System ID : X</td>
+                            <td>Identifiant du système Desigo CC connecté (affiché dynamiquement)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 4 : MODES D'ACQUISITION
+        ════════════════════════════════════════════ -->
+        <section id="section4">
+            <h1>4. Modes d'Acquisition</h1>
+
+            <div id="section4-1">
+                <h2>4.1 Mode Date Unique</h2>
+                <p>
+                    Le mode <strong>Date unique</strong> permet d'extraire l'ensemble des données de tendances 
+                    pour une journée complète. La plage horaire est automatiquement fixée à :
+                </p>
+                <ul>
+                    <li><strong>Début :</strong> 00:00:00 de la date sélectionnée</li>
+                    <li><strong>Fin :</strong> 23:59:59 de la date sélectionnée</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>ℹ️ Valeur par défaut :</strong> La date est initialisée à la date du jour au chargement 
+                    de la page via <code>@DateTime.Today.ToString("yyyy-MM-dd")</code> côté serveur Razor.
+                </div>
+
+                <h3>Cas d'usage typiques</h3>
+                <ul>
+                    <li>Vérification des données d'une journée spécifique</li>
+                    <li>Re-extraction d'une journée après une panne</li>
+                    <li>Audit ponctuel d'une date précise</li>
+                </ul>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section4-2">
+                <h2>4.2 Mode Période</h2>
+                <p>
+                    Le mode <strong>Période</strong> permet de définir une plage de dates personnalisée 
+                    avec une date de début (<em>Du</em>) et une date de fin (<em>Au</em>).
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Champ</th>
+                            <th>Valeur par défaut</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Du</strong></td>
+                            <td>Date du jour − 7 jours</td>
+                            <td>Date de début de la période d'extraction</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Au</strong></td>
+                            <td>Date du jour</td>
+                            <td>Date de fin de la période d'extraction</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <strong>⚠️ Attention aux grandes périodes :</strong> Plus la période est longue, 
+                    plus le volume de données est important. Des périodes très étendues peuvent :
+                    <ul>
+                        <li>Générer des timeouts API (délai de 180s par requête)</li>
+                        <li>Augmenter significativement le temps de traitement</li>
+                        <li>Produire des fichiers de sortie volumineux</li>
+                    </ul>
+                    Il est recommandé de ne pas dépasser <strong>30 jours</strong> par extraction.
+                </div>
+
+                <h3>Cas d'usage typiques</h3>
+                <ul>
+                    <li>Re-extraction d'une semaine après une interruption du service automatique</li>
+                    <li>Extraction pour un rapport mensuel</li>
+                    <li>Récupération de données historiques pour analyse</li>
+                </ul>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section4-3">
+                <h2>4.3 Annulation d'une Acquisition</h2>
+                <p>
+                    Il est possible d'interrompre une acquisition en cours à tout moment via le bouton 
+                    <strong>⛔ Arrêter</strong> qui apparaît automatiquement pendant le traitement.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comportement</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Déclenchement</strong></td>
+                            <td>Clic sur le bouton ⛔ Arrêter → appel de <code>cancelAcquisition()</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Effet immédiat</strong></td>
+                            <td>L'acquisition s'arrête proprement après le trend en cours</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Données partielles</strong></td>
+                            <td>Les trends déjà traités avant l'annulation sont conservés</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Retour UI</strong></td>
+                            <td>Le bouton Arrêter disparaît, le bouton Lancer redevient actif</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>ℹ️ Visibilité du bouton :</strong> Le bouton <strong>⛔ Arrêter</strong> 
+                    possède la classe <code>si-hidden</code> par défaut. Il devient visible uniquement 
+                    lorsqu'une acquisition est en cours, géré dynamiquement par <code>app.js</code>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 5 : GESTION DE SESSION ET TOKEN
+        ════════════════════════════════════════════ -->
+        <section id="section5">
+            <h1>5. Gestion de Session et Token</h1>
+
+            <div id="section5-1">
+                <h2>5.1 Authentification OAuth 2.0</h2>
+                <p>
+                    L'application utilise le protocole <strong>OAuth 2.0</strong> avec un token <strong>Bearer</strong> 
+                    pour authentifier toutes les requêtes vers l'API NORIS de Desigo CC. 
+                    Le token est obtenu lors de la connexion initiale et doit être renouvelé avant son expiration.
+                </p>
+
+                <h3>Durées de validité du token</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Valeur <code>expires_in</code></th>
+                            <th>Durée</th>
+                            <th>Type de configuration</th>
+                            <th>Comportement TokenMonitor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>1500</code></td>
+                            <td>25 minutes</td>
+                            <td>Configuration courte</td>
+                            <td>Alerte rapide, refresh fréquent recommandé</td>
+                        </tr>
+                        <tr>
+                            <td><code>86400</code></td>
+                            <td>24 heures</td>
+                            <td>Configuration standard</td>
+                            <td>Surveillance normale</td>
+                        </tr>
+                        <tr>
+                            <td><code>2591999</code></td>
+                            <td>~30 jours</td>
+                            <td>Configuration longue durée</td>
+                            <td>Surveillance passive (ex: log affiché dans la console)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>ℹ️ Contrôle serveur :</strong> La durée de validité du token est entièrement 
+                    définie par le serveur Desigo CC. L'application cliente ne peut pas modifier cette valeur. 
+                    Elle est configurée par l'administrateur système côté Desigo CC.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section5-2">
+                <h2>5.2 TokenMonitor</h2>
+                <p>
+                    Le <strong>TokenMonitor</strong> est un script JavaScript (<code>tokenMonitor.js</code>) 
+                    qui surveille en continu la validité du token OAuth et alerte l'utilisateur avant son expiration.
+                </p>
+
+                <h3>Comportement du TokenMonitor</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Événement</th>
+                            <th>Action</th>
+                            <th>Message dans les logs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Démarrage de la surveillance</td>
+                            <td>Initialisation du timer interne</td>
+                            <td><code>🕐 [TokenMonitor] Surveillance démarrée (expire dans Xs)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Token proche de l'expiration</td>
+                            <td>Mise à jour de l'indicateur Token en orange</td>
+                            <td>Avertissement dans la console</td>
+                        </tr>
+                        <tr>
+                            <td>Token expiré</td>
+                            <td>Indicateur Token en rouge, acquisition bloquée</td>
+                            <td>Message d'erreur dans la console</td>
+                        </tr>
+                        <tr>
+                            <td>Token renouvelé</td>
+                            <td>Réinitialisation du timer, indicateur vert</td>
+                            <td>Confirmation dans la console</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <strong>⚠️ Acquisition et expiration :</strong> Si le token expire pendant une acquisition 
+                    en cours, celle-ci risque d'échouer pour les trends non encore traités. 
+                    Il est recommandé de vérifier l'état du token avant de lancer une extraction longue.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section5-3">
+                <h2>5.3 Refresh Token Manuel</h2>
+                <p>
+                    Le bouton <strong>🔄 Refresh Token</strong> dans le header permet de renouveler 
+                    manuellement le token à tout moment, sans avoir à recharger la page.
+                </p>
+
+                <h3>Flux d'exécution du Refresh Token</h3>
+                <ol>
+                    <li><strong>Clic sur le bouton</strong> → appel de la fonction <code>refreshToken()</code></li>
+                    <li><strong>Désactivation du bouton</strong> → classe CSS <code>loading</code> appliquée (opacity réduite, curseur attente)</li>
+                    <li><strong>Requête POST</strong> vers <code>/api/token</code> avec les credentials configurés</li>
+                    <li><strong>Réception du nouveau token</strong> → mise à jour du token en mémoire</li>
+                    <li><strong>Réinitialisation du TokenMonitor</strong> → nouveau timer de surveillance</li>
+                    <li><strong>Réactivation du bouton</strong> → classe <code>loading</code> retirée</li>
+                    <li><strong>Log de confirmation</strong> → message affiché dans la console</li>
+                </ol>
+
+                <div class="success-box">
+                    <strong>✅ Bonne pratique :</strong> Effectuer un refresh token avant de lancer 
+                    une extraction longue (période de plusieurs jours) pour s'assurer que le token 
+                    ne va pas expirer pendant le traitement.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section5-4">
+                <h2>5.4 Connexion SignalR</h2>
+                <p>
+                    L'application utilise <strong>SignalR</strong> pour recevoir les mises à jour en temps réel 
+                    depuis le serveur (logs, progression, résultats) sans avoir à rafraîchir la page.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Détail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Librairie</strong></td>
+                            <td><code>js/signalr.min.js</code> (hébergée localement)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Établissement</strong></td>
+                            <td>Automatique au chargement de la page</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reconnexion</strong></td>
+                            <td>Automatique en cas de perte de connexion</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Messages reçus</strong></td>
+                            <td>Logs, progression, résultats d'acquisition</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Log de confirmation</strong></td>
+                            <td><code>🔗 Connexion SignalR établie.</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <strong>⚠️ Perte de connexion SignalR :</strong> Si la connexion SignalR est perdue, 
+                    les mises à jour en temps réel (logs, progression) ne sont plus reçues. 
+                    L'acquisition peut continuer côté serveur, mais l'interface ne se met plus à jour. 
+                    Dans ce cas, rafraîchir la page pour rétablir la connexion.
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 6 : FLUX DE TRAITEMENT
+        ════════════════════════════════════════════ -->
+        <section id="section6">
+            <h1>6. Flux de Traitement</h1>
+
+            <div id="section6-1">
+                <h2>6.1 Démarrage de l'Application</h2>
+                <p>Ce diagramme illustre la séquence d'initialisation au chargement de la page.</p>
+
+                <div class="diagram">
+                    <pre><code>┌──────────┐      ┌───────────┐      ┌────────────┐      ┌──────────┐
+│Navigateur│      │Index.cshtml│     │  app.js /  │      │Desigo CC │
+│          │      │(Razor)    │      │tokenMonitor│      │  API     │
+└────┬─────┘      └─────┬─────┘      └─────┬──────┘      └────┬─────┘
+     │                  │                  │                   │
+     │  GET /Trend/     │                  │                   │
+     ├─────────────────>│                  │                   │
+     │<─────────────────┤                  │                   │
+     │  Page HTML rendue│                  │                   │
+     │  (dates pré-remplies côté serveur)  │                   │
+     │                  │                  │                   │
+     │  Chargement JS   │                  │                   │
+     ├─────────────────────────────────────>                   │
+     │                  │                  │                   │
+     │                  │  SignalR Connect │                   │
+     │<─────────────────────────────────────                   │
+     │  Hub établi      │                  │                   │
+     │                  │                  │                   │
+     │                  │  Connexion API   │                   │
+     │                  ├──────────────────────────────────────>
+     │                  │                  │  POST /api/token  │
+     │                  │<──────────────────────────────────────
+     │                  │  Bearer Token    │                   │
+     │                  │                  │                   │
+     │                  │  GET /api/systems/local              │
+     │                  ├──────────────────────────────────────>
+     │                  │<──────────────────────────────────────
+     │                  │  Projet + SystemId                   │
+     │                  │                  │                   │
+     │  SignalR Push    │                  │                   │
+     │<─────────────────────────────────────                   │
+     │  ✅ Connecté — Projet : XXX (ID : Y)                   │
+     │                  │                  │                   │
+     │  TokenMonitor Start                 │                   │
+     │<─────────────────────────────────────                   │
+     │  🕐 Surveillance démarrée          │                   │
+     │                  │                  │                   │</code></pre>
+                </div>
+
+                <p><strong>Étapes clés au chargement :</strong></p>
+                <ol>
+                    <li>Le navigateur charge la page <code>Index.cshtml</code> (les dates sont pré-remplies côté serveur Razor)</li>
+                    <li>Les scripts JS sont chargés (<code>signalr.min.js</code>, <code>tokenMonitor.js</code>, <code>app.js</code>)</li>
+                    <li>La connexion SignalR est établie avec le hub backend</li>
+                    <li>L'application se connecte à l'API Desigo CC et obtient un token</li>
+                    <li>Les informations du projet sont récupérées et affichées</li>
+                    <li>Le TokenMonitor démarre la surveillance du token</li>
+                    <li>L'interface est prête pour l'acquisition</li>
+                </ol>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section6-2">
+                <h2>6.2 Lancement d'une Acquisition</h2>
+                <p>Ce diagramme montre le flux complet lors d'un clic sur "▶ Lancer l'acquisition".</p>
+
+                <div class="diagram">
+                    <pre><code>┌──────────┐      ┌────────────┐      ┌──────────────┐
+│Utilisateur│     │  app.js   │      │  ASP.NET /   │
+│          │      │ (Client)  │      │  Desigo CC   │
+└────┬─────┘      └─────┬─────┘      └──────┬───────┘
+     │                  │                   │
+     │ Clic ▶ Lancer    │                   │
+     ├─────────────────>│                   │
+     │                  │ Vérif. statut     │
+     │                  │ (session, token)  │
+     │                  │                   │
+     │                  │ Affiche btnCancel │
+     │                  │ Masque btnStart   │
+     │                  │ Affiche cardProgress
+     │                  │                   │
+     │                  │ GET /api/trendseriesinfo/{systemId}
+     │                  ├──────────────────>│
+     │                  │<──────────────────┤
+     │                  │ Liste des trends  │
+     │                  │                   │
+     │  SignalR Push    │                   │
+     │<─────────────────┤                   │
+     │  ▶ Acquisition démarrée             │
+     │                  │                   │
+     │                  │ [Pour chaque trend]
+     │                  │ GET /api/trendseries/{id}?from=...&to=...
+     │                  ├──────────────────>│
+     │                  │<──────────────────┤
+     │                  │ TrendSeries JSON  │
+     │                  │                   │
+     │  SignalR Push    │                   │
+     │<─────────────────┤                   │
+     │  📊 Trend X/Y : Nom                 │
+     │  [Barre progression mise à jour]    │
+     │                  │                   │
+     │                  │ [Fin de boucle]   │
+     │                  │                   │
+     │  SignalR Push    │                   │
+     │<─────────────────┤                   │
+     │  ✅ Acquisition terminée            │
+     │  [cardResult affiché]               │
+     │  [btnStart restauré]                │
+     │                  │                   │</code></pre>
+                </div>
+
+                <p><strong>Étapes du cycle d'acquisition :</strong></p>
+                <ol>
+                    <li>L'utilisateur sélectionne le mode et la date/période, puis clique sur <strong>▶ Lancer l'acquisition</strong></li>
+                    <li>L'application vérifie que la session est valide et le token actif</li>
+                    <li>L'interface bascule : bouton Arrêter visible, badge "En cours…" affiché, carte Progression affichée</li>
+                    <li>La liste complète des trend collectors est récupérée depuis Desigo CC</li>
+                    <li>Pour chaque trend :
+                        <ul>
+                            <li>Récupération des données historiques sur la plage sélectionnée</li>
+                            <li>Push SignalR → mise à jour des logs et de la progression</li>
+                            <li>Sauvegarde ou traitement des données côté serveur</li>
+                        </ul>
+                    </li>
+                    <li>Fin d'acquisition : carte Résultat affichée, interface restaurée</li>
+                </ol>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section6-3">
+                <h2>6.3 Machine à États</h2>
+                <p>Ce diagramme représente les états de l'application et les transitions possibles.</p>
+
+                <div class="diagram">
+                    <pre><code>┌─────────────────┐
+│    CHARGEMENT   │
+│  (page load)    │
+└────────┬────────┘
+         │
+         v
+┌─────────────────┐
+│  INITIALISATION │◄──────────────────┐
+│  (connexion API │                   │
+│   + SignalR)    │                   │
+└────────┬────────┘                   │
+         │ Connexion OK               │
+         v                            │
+┌─────────────────┐                   │
+│     PRÊT        │                   │
+│ (session valide,│                   │
+│  token actif)   │───────────────────┤
+└────────┬────────┘  Token expiré /   │
+         │           Session perdue   │
+         │ Clic ▶                     │
+         v                            │
+┌─────────────────┐                   │
+│  EN ACQUISITION │                   │
+│  (boucle trends)│                   │
+└────────┬────────┘                   │
+         │                            │
+    ┌────┴────┐                       │
+    │         │                       │
+    v         v                       │
+┌───────┐  ┌──────────┐               │
+│TERMINÉ│  │ ANNULÉ   │               │
+│(succès│  │(btnCancel│               │
+│complet)  │ cliqué)  │               │
+└───┬───┘  └────┬─────┘               │
+    │            │                    │
+    └─────┬──────┘                    │
+          │                           │
+          v                           │
+┌─────────────────┐                   │
+│     PRÊT        │───────────────────┘
+│ (résultat affiché,
+│  prêt pour      │
+│  nouvelle acq.) │
+└─────────────────┘</code></pre>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>État</th>
+                            <th>Description</th>
+                            <th>Indicateurs UI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CHARGEMENT</strong></td>
+                            <td>Page en cours de chargement, scripts JS en initialisation</td>
+                            <td>Dots gris, "Chargement…" dans le header</td>
+                        </tr>
+                        <tr>
+                            <td><strong>INITIALISATION</strong></td>
+                            <td>Connexion API et SignalR en cours</td>
+                            <td>Dots en transition, logs de connexion</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PRÊT</strong></td>
+                            <td>Session valide, token actif, prêt pour l'acquisition</td>
+                            <td>Dots verts, bouton ▶ actif</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EN ACQUISITION</strong></td>
+                            <td>Extraction en cours, boucle sur les trends</td>
+                            <td>Badge "En cours…", barre de progression, bouton ⛔ visible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TERMINÉ</strong></td>
+                            <td>Acquisition complète avec succès</td>
+                            <td>Carte Résultat affichée, bouton ▶ restauré</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ANNULÉ</strong></td>
+                            <td>Acquisition interrompue par l'utilisateur</td>
+                            <td>Données partielles, bouton ▶ restauré</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 7 : GESTION DES ERREURS
+        ════════════════════════════════════════════ -->
+        <section id="section7">
+            <h1>7. Gestion des Erreurs</h1>
+
+            <div id="section7-1">
+                <h2>7.1 Stratégies de Gestion</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type d'erreur</th>
+                            <th>Stratégie</th>
+                            <th>Action détaillée</th>
+                            <th>Impact utilisateur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Token expiré</strong></td>
+                            <td>Alerte + blocage</td>
+                            <td>
+                                • Indicateur Token en rouge<br>
+                                • Message d'erreur dans les logs<br>
+                                • Acquisition bloquée jusqu'au refresh
+                            </td>
+                            <td>Cliquer sur 🔄 Refresh Token</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Session perdue</strong></td>
+                            <td>Réinitialisation</td>
+                            <td>
+                                • Dots de statut en rouge<br>
+                                • Message dans les logs<br>
+                                • Rechargement de la page requis
+                            </td>
+                            <td>Rafraîchir la page (F5)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Timeout API (trend)</strong></td>
+                            <td>Skip + continue</td>
+                            <td>
+                                • Log d'avertissement<br>
+                                • Trend ignoré<br>
+                                • Passage au trend suivant
+                            </td>
+                            <td>Progression continue, trend omis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Trend invalide / 404</strong></td>
+                            <td>Skip + continue</td>
+                            <td>
+                                • Log d'erreur<br>
+                                • Trend ignoré<br>
+                                • Continuation de la boucle
+                            </td>
+                            <td>Progression continue</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Perte SignalR</strong></td>
+                            <td>Reconnexion auto</td>
+                            <td>
+                                • Tentative de reconnexion automatique<br>
+                                • Les logs ne s'affichent plus pendant la perte<br>
+                                • Acquisition continue côté serveur
+                            </td>
+                            <td>Rafraîchir la page si la reconnexion échoue</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Erreur serveur (500)</strong></td>
+                            <td>Log + stop</td>
+                            <td>
+                                • Message d'erreur détaillé dans les logs<br>
+                                • Arrêt de l'acquisition<br>
+                                • Interface restaurée
+                            </td>
+                            <td>Vérifier la configuration et réessayer</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>💡 Principe de conception :</strong> Comme pour le Trends Extractor automatique, 
+                    l'application est conçue selon le principe <em>"fail gracefully"</em> : 
+                    une erreur sur un trend individuel ne doit pas interrompre le traitement global. 
+                    Seules les erreurs critiques (session perdue, erreur serveur) arrêtent l'acquisition.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section7-2">
+                <h2>7.2 Codes d'Erreur API</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code HTTP</th>
+                            <th>Signification</th>
+                            <th>Action Application</th>
+                            <th>Contexte typique</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>200</strong></td>
+                            <td>OK — Succès</td>
+                            <td>Traitement normal de la réponse</td>
+                            <td>Toutes les requêtes réussies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>Non autorisé</td>
+                            <td>
+                                • Indicateur Token en rouge<br>
+                                • Message dans les logs<br>
+                                • Refresh Token requis
+                            </td>
+                            <td>Token expiré ou invalide</td>
+                        </tr>
+                        <tr>
+                            <td><strong>404</strong></td>
+                            <td>Non trouvé</td>
+                            <td>
+                                • Log d'avertissement<br>
+                                • Skip du trend<br>
+                                • Continuation
+                            </td>
+                            <td>Trend ou objet supprimé du système</td>
+                        </tr>
+                        <tr>
+                            <td><strong>500</strong></td>
+                            <td>Erreur serveur interne</td>
+                            <td>
+                                • Log d'erreur détaillé<br>
+                                • Arrêt de l'acquisition<br>
+                                • Interface restaurée
+                            </td>
+                            <td>Problème côté serveur Desigo CC</td>
+                        </tr>
+                        <tr>
+                            <td><strong>503</strong></td>
+                            <td>Service indisponible</td>
+                            <td>
+                                • Log d'erreur<br>
+                                • Arrêt de l'acquisition
+                            </td>
+                            <td>Serveur Desigo CC en maintenance</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <strong>ℹ️ Timeout configuré :</strong> Toutes les requêtes HTTP ont un timeout de 
+                    <strong>180 secondes</strong> (3 minutes). Ce délai permet de gérer les requêtes 
+                    de trends volumineux tout en évitant les blocages indéfinis.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section7-3">
+                <h2>7.3 Interprétation des Logs</h2>
+                <p>Guide de lecture des messages affichés dans la console de logs.</p>
+
+                <h4>Connexion réussie</h4>
+                <pre><code>[5:19:38 PM] ✅ Connecté — Projet : CentraleFroidBelval2 (ID : 2)
+[5:19:38 PM] 🕐 [TokenMonitor] Surveillance démarrée (expire dans 2591999s)
+[5:19:38 PM] 🔗 Connexion SignalR établie.</code></pre>
+
+                <h4>Acquisition en cours</h4>
+                <pre><code>[5:20:01 PM] ▶ Acquisition démarrée — Mode : Date unique — 2026-05-04
+[5:20:02 PM] 📊 Trend 1/156 : Building@HVAC@Floor1_AHU1@Temperature — 96 valeurs
+[5:20:04 PM] 📊 Trend 2/156 : Building@HVAC@Floor1_AHU1@Pressure — 96 valeurs</code></pre>
+
+                <h4>Avertissement timeout</h4>
+                <pre><code>[5:20:15 PM] ⚠️ Timeout API — Trend 12/156 ignoré : Building@HVAC@Floor2_FCU3@CO2
+[5:20:15 PM] 📊 Trend 13/156 : Building@HVAC@Floor2_FCU4@Temperature — 96 valeurs</code></pre>
+
+                <h4>Fin d'acquisition</h4>
+                <pre><code>[5:21:45 PM] ✅ Acquisition terminée — 154/156 trends traités — 14784 valeurs extraites
+[5:21:45 PM] ℹ️ 2 trends ignorés (timeout ou données indisponibles)</code></pre>
+
+                <h4>Erreur de token</h4>
+                <pre><code>[5:25:00 PM] ❌ Token expiré — Veuillez cliquer sur 🔄 Refresh Token avant de continuer</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Problème observé</th>
+                            <th>Message à rechercher dans les logs</th>
+                            <th>Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Connexion impossible</td>
+                            <td>Absence de ✅ Connecté au démarrage</td>
+                            <td>Vérifier la connectivité réseau et la configuration API</td>
+                        </tr>
+                        <tr>
+                            <td>Token expiré</td>
+                            <td><code>❌ Token expiré</code></td>
+                            <td>Cliquer sur 🔄 Refresh Token</td>
+                        </tr>
+                        <tr>
+                            <td>Trends manquants</td>
+                            <td><code>⚠️ Timeout API</code> ou <code>404</code></td>
+                            <td>Réduire la période ou relancer l'acquisition</td>
+                        </tr>
+                        <tr>
+                            <td>Logs qui s'arrêtent</td>
+                            <td>Absence de messages SignalR</td>
+                            <td>Rafraîchir la page (F5)</td>
+                        </tr>
+                        <tr>
+                            <td>Acquisition lente</td>
+                            <td>Délai entre les messages 📊</td>
+                            <td>Normal pour de grandes périodes — attendre ou réduire la plage</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 8 : ANNEXES
+        ════════════════════════════════════════════ -->
+        <section id="section8">
+            <h1>8. Annexes</h1>
+
+            <div id="section8-1">
+                <h2>8.1 Historique des Versions</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Changements principaux</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>v.1</strong></td>
+                            <td>2025</td>
+                            <td>🔧 En développement</td>
+                            <td>
+                                • Version initiale de l'outil web<br>
+                                • Interface Razor Pages ASP.NET Core<br>
+                                • Mode Date unique et Période<br>
+                                • Logs temps réel via SignalR<br>
+                                • TokenMonitor + Refresh Token manuel<br>
+                                • Bouton d'annulation d'acquisition<br>
+                                • Barre de progression<br>
+                                • Charte graphique Siemens
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <strong>⚠️ Version non déployée :</strong> La v.1 est la version initiale du 
+                    <strong>Manual Trend Extractor</strong>. Elle n'a pas encore été déployée en 
+                    environnement de production et est actuellement en phase de développement et de validation.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section8-2">
+                <h2>8.2 Endpoints API Utilisés</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Méthode</th>
+                            <th>Description</th>
+                            <th>Authentification</th>
+                            <th>Fréquence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/api/token</code></td>
+                            <td>POST</td>
+                            <td>Authentification et obtention du token JWT</td>
+                            <td>Username / Password</td>
+                            <td>Au démarrage + Refresh manuel</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/heartbeat</code></td>
+                            <td>POST</td>
+                            <td>Maintien de la session active</td>
+                            <td>Bearer Token</td>
+                            <td>Périodique (géré par le backend)</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/systems/local</code></td>
+                            <td>GET</td>
+                            <td>Récupération du nom et ID du projet connecté</td>
+                            <td>Bearer Token</td>
+                            <td>Une fois après connexion</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/trendseriesinfo/{systemId}</code></td>
+                            <td>GET</td>
+                            <td>Liste de tous les trend collectors configurés</td>
+                            <td>Bearer Token</td>
+                            <td>Au début de chaque acquisition</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/trendseries/{id}?from={date}&to={date}</code></td>
+                            <td>GET</td>
+                            <td>Données historiques d'un trend sur la période sélectionnée</td>
+                            <td>Bearer Token</td>
+                            <td>Pour chaque trend de la liste</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Format des paramètres de date</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paramètre</th>
+                            <th>Format</th>
+                            <th>Exemple</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>from</code></td>
+                            <td>ISO 8601</td>
+                            <td><code>2026-05-04T00:00:00</code></td>
+                            <td>Début de la plage temporelle</td>
+                        </tr>
+                        <tr>
+                            <td><code>to</code></td>
+                            <td>ISO 8601</td>
+                            <td><code>2026-05-04T23:59:59</code></td>
+                            <td>Fin de la plage temporelle</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section8-3">
+                <h2>8.3 Prérequis et Déploiement</h2>
+
+                <h3>Prérequis techniques</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Prérequis</th>
+                            <th>Détail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Runtime</strong></td>
+                            <td>ASP.NET Core Runtime (version compatible avec le projet)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Réseau</strong></td>
+                            <td>Accès réseau au serveur Desigo CC depuis le serveur hébergeant l'application</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Navigateur</strong></td>
+                            <td>Navigateur moderne supportant SignalR WebSocket (Chrome, Edge, Firefox)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Credentials API</strong></td>
+                            <td>Compte utilisateur Desigo CC avec droits de lecture des trends</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Configuration</strong></td>
+                            <td>Paramètres API renseignés dans <code>appsettings.json</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Structure des fichiers du projet</h3>
+                <pre><code>WebAPIDateTrendSelector/
+├── Pages/
+│   └── Index.cshtml          ← Page principale (UI)
+│   └── Index.cshtml.cs       ← Code-behind Razor
+├── wwwroot/
+│   ├── css/
+│   │   └── siemens.css       ← Charte graphique Siemens
+│   └── js/
+│       ├── signalr.min.js    ← Librairie SignalR (locale)
+│       ├── tokenMonitor.js   ← Surveillance du token OAuth
+│       └── app.js            ← Logique d'acquisition client
+├── appsettings.json          ← Configuration (URL API, credentials)
+└── WebAPIDateTrendSelector.csproj</code></pre>
+
+                <h3>Chemin de déploiement</h3>
+                <p>
+                    L'application est configurée pour être déployée sous le chemin <code>/Trend/</code> 
+                    (défini par <code>&lt;base href="/Trend/"&gt;</code>). 
+                    Ce chemin doit être configuré dans le serveur web (IIS, Nginx, etc.) lors du déploiement.
+                </p>
+
+                <div class="warning-box">
+                    <strong>⚠️ Non déployé en production :</strong> À la date de rédaction de cette documentation, 
+                    le <strong>Manual Trend Extractor v.1</strong> n'est pas encore déployé en environnement de production. 
+                    Il est en cours de développement et de validation interne.
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div id="section8-4">
+                <h2>8.4 FAQ</h2>
+
+                <h3>La barre de statut reste grise au chargement ?</h3>
+                <p>
+                    Vérifier que le serveur Desigo CC est accessible depuis le réseau et que les paramètres 
+                    de connexion dans <code>appsettings.json</code> (URL API, username, password) sont corrects. 
+                    Consulter les logs dans la console pour identifier l'erreur précise.
+                </p>
+
+                <h3>L'acquisition se bloque sans message d'erreur ?</h3>
+                <p>
+                    Vérifier la connexion SignalR dans les logs. Si aucun message n'apparaît depuis plusieurs 
+                    secondes, la connexion SignalR est probablement perdue. Rafraîchir la page (F5) pour 
+                    rétablir la connexion. L'acquisition peut avoir continué côté serveur.
+                </p>
+
+                <h3>Le token expire très rapidement ?</h3>
+                <p>
+                    La durée du token est configurée côté serveur Desigo CC par l'administrateur système. 
+                    L'application cliente ne peut pas modifier cette valeur. Utiliser le bouton 
+                    <strong>🔄 Refresh Token</strong> pour renouveler manuellement avant chaque extraction longue.
+                </p>
+
+                <h3>Peut-on lancer plusieurs acquisitions simultanément ?</h3>
+                <p>
+                    Non. Une seule acquisition peut être active à la fois. Le bouton <strong>▶ Lancer l'acquisition</strong> 
+                    est remplacé par le bouton <strong>⛔ Arrêter</strong> pendant une extraction. 
+                    Il faut attendre la fin ou annuler l'acquisition en cours avant d'en lancer une nouvelle.
+                </p>
+
+                <h3>Les données extraites sont-elles sauvegardées automatiquement ?</h3>
+                <p>
+                    Oui, les données sont traitées et sauvegardées côté serveur pendant l'acquisition. 
+                    Le résultat final est accessible dans la carte <strong>Résultat</strong> à la fin de l'extraction.
+                </p>
+
+                <h3>Quelle est la différence avec le Trends Extractor automatique (v4.0) ?</h3>
+                <p>
+                    Le <strong>Trends Extractor v4.0</strong> est une application Windows Forms qui tourne 
+                    en arrière-plan et extrait automatiquement les données toutes les X minutes. 
+                    Le <strong>Manual Trend Extractor v.1</strong> est une application web qui permet 
+                    à un opérateur de déclencher manuellement une extraction sur une plage de dates précise. 
+                    Les deux outils sont complémentaires.
+                </p>
+
+                <div class="success-box">
+                    <strong>✅ Conseil général :</strong> Avant toute extraction importante, vérifier que :
+                    <ul>
+                        <li>Les 3 indicateurs de statut (Session, Projet, Token) sont verts</li>
+                        <li>Le token a une durée de validité suffisante pour l'extraction prévue</li>
+                        <li>La connexion SignalR est établie (message 🔗 dans les logs)</li>
+                        <li>La plage de dates sélectionnée est raisonnable (≤ 30 jours recommandé)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer">
+        <p><strong>Siemens Luxembourg</strong></p>
+        <p>Manual Trend Extractor — Documentation Technique</p>
+        <p>Version 1.0</p>
+        <p class="copyright">© 2025 Siemens. Tous droits réservés.<br>
+        Ce document est confidentiel et destiné à un usage interne uniquement.</p>
+    </div>
+
+</body>
+</html>
